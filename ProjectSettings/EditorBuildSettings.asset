@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Main Menu.unity
+    guid: 7d3834ab09c7a4c44a23d758d3c9a754
+  - enabled: 1
+    path: Assets/Scenes/SampleScene.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/GPSLocation/GPSLocation.unity
+    guid: d31f3bbe372dd394f802c4b19dccea3f
+  m_configObjects:
+    UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 4c3f9e0f8584bf04b91ccb13b8be0893, type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 9153908b52c071e4b82e3564f821c80b, type: 2}
