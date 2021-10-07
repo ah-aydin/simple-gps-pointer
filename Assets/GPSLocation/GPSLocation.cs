@@ -26,10 +26,21 @@ using UnityEngine.UI;
 
     IEnumerator GPSLoc()
     {
-        // Check if the user has the location service enabled on their mobile phone
+        yield return new WaitForSeconds(3);
+#if UNITY_EDITOR
+        //Wait until Unity connects to the Unity Remote, while not connected, yield return null
+        while (!UnityEditor.EditorApplication.isRemoteConnected)
+        {
+            yield return null;
+        }
+#endif
+        
         if (!Input.location.isEnabledByUser)
+        {
+            GPSStatus.text = "The locaion service is offline";
             yield break;
-
+        }
+        
         // Start service
         Input.location.Start();
 
