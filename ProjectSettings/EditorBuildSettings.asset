@@ -6,10 +6,10 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Main Menu.unity
+    path: Assets/Main Menu.unity
     guid: 7d3834ab09c7a4c44a23d758d3c9a754
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
+    path: Assets/Navigation/Navigation.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
     path: Assets/GPSLocation/GPSLocation.unity

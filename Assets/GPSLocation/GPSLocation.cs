@@ -2,9 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Android;
 
 [SerializeField] class GPSLocation : MonoBehaviour
 {
+    [SerializeField] GameObject camera;
+
     [SerializeField] Text GPSStatus;
     [SerializeField] Text latitudeValue;
     [SerializeField] Text longitudeValue;
@@ -12,36 +15,57 @@ using UnityEngine.UI;
     [SerializeField] Text horizontalAccuracyValue;
     [SerializeField] Text timeStampValue;
 
-    [HideInInspector] float latitude;
-    [HideInInspector] float longitude;
-    [HideInInspector] float altitude;
-    [HideInInspector] float horizontalAccuracy;
-    [HideInInspector] double timeStamp;
+    [HideInInspector] public float latitude;
+    [HideInInspector] public float longitude;
+    [HideInInspector] public float altitude;
+    [HideInInspector] public float horizontalAccuracy;
+    [HideInInspector] public double timeStamp;
+    [HideInInspector] public float heading;
+
+    [SerializeField] Text debugText;
 
     // Start is called before the first frame update
     void Start()
     {
+        if (debugText) debugText.text = "DEBUGGING...";
+
+        // Request permissions
+#if UNITY_ANDROID
+        if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+        {
+            Permission.RequestUserPermission(Permission.FineLocation);
+        }
+#elif UNITY_IOS
+        PlayerSettings.iOS.locationUsageDescription = "Details to use location";
+#endif
+        // Start GPS coroutine
         StartCoroutine(GPSLoc());
     }
 
     IEnumerator GPSLoc()
     {
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(0.3f);
+
+        // If we are in the unity editor, wait until unity remote is connected
 #if UNITY_EDITOR
-        //Wait until Unity connects to the Unity Remote, while not connected, yield return null
+        // Wait until Unity connects to the Unity Remote, while not connected, yield return null
         while (!UnityEditor.EditorApplication.isRemoteConnected)
         {
             yield return null;
         }
 #endif
-        
+
+        // If the gps is not enabled, break the coroutine
         if (!Input.location.isEnabledByUser)
         {
-            GPSStatus.text = "The locaion service is offline";
+            GPSStatus.text = "The locaiont service is offline";
             yield break;
         }
-        
+        if (GPSStatus) GPSStatus.text = "Initializing";
+        yield return new WaitForSeconds(1);
+
         // Start service
+        Input.compass.enabled = true;
         Input.location.Start();
 
         // Wait until service initialize
@@ -66,17 +90,24 @@ using UnityEngine.UI;
         }
         else
         {
-            GPSStatus.text = "Running";
-            InvokeRepeating("UpdateGPSData", 0.5f, 1.0f);
+            yield return new WaitForSeconds(3);
+            while (Input.location.status == LocationServiceStatus.Running)
+            {
+                StartCoroutine(UpdateGPSData());
+                StartCoroutine(Compass());
+                yield return null;
+            }
+            GPSStatus.text = "Exited";
         }
     }
 
-    private void UpdateGPSData()
+    IEnumerator UpdateGPSData()
     {
+        //GPSStatus.text = (Input.location.status == LocationServiceStatus.Running).ToString();
         if (Input.location.status != LocationServiceStatus.Running)
         {
             GPSStatus.text = "Stop";
-            return;
+            yield return null;
         }
 
         // Service is running
@@ -96,5 +127,16 @@ using UnityEngine.UI;
 
         timeStamp = Input.location.lastData.timestamp;
         if (timeStampValue != null) timeStampValue.text = timeStamp.ToString();
+
+        yield return null;
+    }
+
+    IEnumerator Compass()
+    {
+        Debug.Log("I AM HERE");
+        debugText.text = Input.compass.enabled.ToString();
+        if (!Input.compass.enabled) yield return null;
+        heading = Input.compass.trueHeading;
+        yield return null;
     }
 }
